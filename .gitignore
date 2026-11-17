@@ -1,0 +1,13 @@
+/build*/
+*.o
+*.a
+*.so
+*.dll
+*.exe
+# never commit: local tuning tables, firmware containers, saved hook bytes
+*.tsv
+*.frc
+*.frc.hook
+/third_party/
+.vs/
+*.vcxproj.user

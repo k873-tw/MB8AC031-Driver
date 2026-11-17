@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>libifd_mb8cfw.so</string>
+	<key>CFBundleIdentifier</key>
+	<string>mb8cfw.ifd</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>ifd-mb8cfw</string>
+	<key>CFBundlePackageType</key>
+	<string>BNDL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>@PROJECT_VERSION@</string>
+	<key>CFBundleVersion</key>
+	<string>@PROJECT_VERSION@</string>
+	<key>ifdCapabilities</key>
+	<string>0x00000000</string>
+	<key>ifdManufacturerString</key>
+	<string>MB8AC031-Driver</string>
+	<key>ifdProductString</key>
+	<string>card slot via MB8AC031-CFW</string>
+	<key>ifdVendorID</key>
+	<array>
+		<string>0x04BB</string>
+		<string>0x06B8</string>
+	</array>
+	<key>ifdProductID</key>
+	<array>
+		<string>0x053A</string>
+		<string>0x103B</string>
+	</array>
+	<key>ifdFriendlyName</key>
+	<array>
+		<string>GV-M2TV CFW card slot</string>
+		<string>PIX-DT295 CFW card slot</string>
+	</array>
+	<key>CFWAllowAPDU</key>
+	<false/>
+</dict>
+</plist>
