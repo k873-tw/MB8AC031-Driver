@@ -134,17 +134,21 @@ int dt295_tune(fe_xfer_fn x, void *ctx, unsigned khz)
 
 int dt295_status(fe_xfer_fn x, void *ctx, int *locked, uint32_t *cnr)
 {
-    uint8_t s, c[3];
+    uint8_t s, l = 0, c[3];
 
-    /* Demod 0x80 reads 0x00 from the moment the signal is locked (before:
-     * 0x2F, then 0x2E, 0x04). */
+    /* The lock rule is the firmware's own (tc9052x_locked): demod 0x80
+     * must have no bit of 0x28 set, and demod 0xB0's low nibble must be
+     * 8 or more.  0x80 == 0 alone is too strict: on 13ch 0x80 stops at
+     * 0x04 (0xB0 reads 0xA9) while the TS is already coming out fine. */
     if (dr(x, ctx, 0x80, &s, 1) != 0)
+        return -1;
+    if (!(s & 0x28u) && dr(x, ctx, 0xB0, &l, 1) != 0)
         return -1;
     /* Demod 0x8B..0x8D: the C/N, 24 bits.  Smaller is better. */
     if (dr(x, ctx, 0x8B, c, 3) != 0)
         return -1;
     if (locked)
-        *locked = s == 0;
+        *locked = !(s & 0x28u) && (l & 0x0Fu) >= 8;
     if (cnr)
         *cnr = ((uint32_t)c[0] << 16) | ((uint32_t)c[1] << 8) | c[2];
     return 0;

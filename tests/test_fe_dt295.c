@@ -135,14 +135,24 @@ int main(void)
     expect(&b, tune, sizeof(tune) / sizeof(tune[0]));
     assert(b.tuner[0x12] == 0x01);
 
-    /* Status: 0x80 == 0 is lock; 0x8B..0x8D the C/N. */
+    /* Status: the firmware's lock rule -- 0x80 with no bit of 0x28, and
+     * 0xB0's low nibble >= 8; 0x8B..0x8D the C/N. */
     b.demod[0x80] = 0x2E;
     b.demod[0x8B] = 0x00; b.demod[0x8C] = 0x07; b.demod[0x8D] = 0x89;
     assert(dt295_status(fake, &b, &locked, &cnr) == 0);
     assert(!locked && cnr == 0x789u);
     b.demod[0x80] = 0x00;
+    b.demod[0xB0] = 0xA9;
     assert(dt295_status(fake, &b, &locked, NULL) == 0);
     assert(locked);
+    /* 13ch as measured: 0x80 stops at 0x04, 0xB0 at 0xA9 -- locked. */
+    b.demod[0x80] = 0x04;
+    assert(dt295_status(fake, &b, &locked, NULL) == 0);
+    assert(locked);
+    /* Sync bits clear but 0xB0's low nibble below 8: not locked. */
+    b.demod[0xB0] = 0xA7;
+    assert(dt295_status(fake, &b, &locked, NULL) == 0);
+    assert(!locked);
 
     /* Satellite: the frequency bytes on both sides of 1,101 MHz. */
     {
