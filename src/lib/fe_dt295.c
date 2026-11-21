@@ -134,17 +134,24 @@ int dt295_tune(fe_xfer_fn x, void *ctx, unsigned khz)
 
 int dt295_status(fe_xfer_fn x, void *ctx, int *locked, uint32_t *cnr)
 {
-    uint8_t s, c[3];
+    uint8_t s, q, t, c[3];
 
-    /* Demod 0x80 reads 0x00 from the moment the signal is locked (before:
-     * 0x2F, then 0x2E, 0x04). */
-    if (dr(x, ctx, 0x80, &s, 1) != 0)
+    /* Locked when demod 0x80 has neither bit 5 nor bit 3 set, the low
+     * nibble of 0xB0 is 8 or more, and 0x96 has one of bits 7..5.  The
+     * first two are the firmware's rule (tc9052x_locked).  0x80 == 0 alone
+     * is too strict: on 13ch 0x80 stops at 0x04 (0xB0 = 0xA9, 0x96 =
+     * 0xC0..0xC6) while the TS is already fine.  0x96 comes up last: with
+     * 0x80 and 0xB0 alone, polled every 20 ms, 16ch started with 1,500 to
+     * 1,800 packets the demodulator could not correct.  The same rule as
+     * m2tv_status. */
+    if (dr(x, ctx, 0x80, &s, 1) != 0 || dr(x, ctx, 0xB0, &q, 1) != 0 ||
+        dr(x, ctx, 0x96, &t, 1) != 0)
         return -1;
     /* Demod 0x8B..0x8D: the C/N, 24 bits.  Smaller is better. */
     if (dr(x, ctx, 0x8B, c, 3) != 0)
         return -1;
     if (locked)
-        *locked = s == 0;
+        *locked = (s & 0x28u) == 0 && (q & 0x0Fu) >= 8u && (t & 0xE0u) != 0;
     if (cnr)
         *cnr = ((uint32_t)c[0] << 16) | ((uint32_t)c[1] << 8) | c[2];
     return 0;
